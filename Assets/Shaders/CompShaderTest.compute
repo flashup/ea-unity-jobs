@@ -1,0 +1,15 @@
+#pragma kernel CSMain
+
+#define GROUP_SIZE 256
+
+StructuredBuffer<float> inputBuffer;
+
+RWStructuredBuffer<float> outputBuffer;
+
+[numthreads(GROUP_SIZE, 1, 1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    uint index = id.x;
+    
+    outputBuffer[index] = inputBuffer[index] * 2.0;
+}

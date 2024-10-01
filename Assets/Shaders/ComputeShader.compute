@@ -1,0 +1,40 @@
+#pragma kernel TspCrossover
+
+int reqChildren;
+
+StructuredBuffer<int> parent1;
+StructuredBuffer<int> parent2;
+
+RWStructuredBuffer<int> child;
+
+float lcgRandom(uint seed)
+{
+    seed = 1664525 * seed + 1013904223;
+    return frac(seed / 4294967296.0);
+}
+
+float random(float2 uv)
+{
+    return frac(sin(dot(uv, float2(12.9898, 78.233))) * 43758.5453);
+}
+
+float random(uint seed) {
+    return frac(sin(seed * 12.9898f) * 43758.5453f);
+}
+
+[numthreads(10,1,1)]
+void TspCrossover(uint3 id : SV_DispatchThreadID)
+{
+    uint arrayIndex = id.z;
+    uint elementIndex = id.x; 
+    uint globalIndex = arrayIndex * 100 + elementIndex;
+
+    float randVal = random(globalIndex);
+
+    if (randVal < 0.5f) {
+        child[globalIndex] = parent1[globalIndex];
+    } else {
+        child[globalIndex] = parent2[globalIndex];
+    }
+}
+

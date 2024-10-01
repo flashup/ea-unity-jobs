@@ -1,0 +1,27 @@
+#pragma kernel FunctionFitness
+
+StructuredBuffer<float> population;
+RWStructuredBuffer<float> fitnessResults;
+
+int dimension;
+// int threadGroupsX;
+// int threadGroupsY;
+
+static const float pi2_const = 2.0f * 3.14159265359f;
+static const float a_const = 10.0f;
+
+[numthreads(1, 1, 1)]
+void FunctionFitness (uint3 id : SV_DispatchThreadID) {
+    uint index = id.x;
+
+    float rastrValue = a_const * dimension;
+
+    for (int i = 0; i < dimension; i++) {
+        float xi = population[index * dimension + i];
+        rastrValue += xi * xi - a_const * cos(pi2_const * xi);
+    }
+
+    rastrValue = abs(rastrValue);
+    fitnessResults[index] = 1.0f - (rastrValue / (rastrValue + 1.0f));
+    // fitnessResults[index] = rastrValue;
+}

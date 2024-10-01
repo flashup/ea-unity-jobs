@@ -1,0 +1,39 @@
+#pragma kernel FunctionFitness
+
+StructuredBuffer<float> population;
+RWStructuredBuffer<float> fitnessResults;
+
+int dimension;
+// int threadGroupsX;
+// int threadGroupsY;
+
+static const float pi2_const = 2.0f * 3.14159265359f;
+static const float a_const = 10.0f;
+
+[numthreads(1, 1, 1)]
+void FunctionFitness (uint3 id : SV_DispatchThreadID) {
+    int index = id.y * 64 + id.x;
+    
+    float pi = 3.14159265359;
+
+    float term1;
+    float termSum = 0.0f;
+    float termLast;
+
+    for (int i = 0; i < dimension; i++)
+    {
+        float val = 1 + (population[index * dimension + i] - 1) / 4.0;
+
+        if (i > 0 && i < dimension)
+            termSum += (val - 1) * (val - 1) * (1 + 10 * sin(pi * val + 1) * sin(pi * val + 1));
+        else if (i == 0)
+            term1 = sin(pi * val) * sin(pi * val);
+        else if (i == dimension - 1)
+            termLast = (val - 1) * (val - 1) * (1 + sin(2 * pi * val) * sin(2 * pi * val));
+    }
+
+    float levyValue = term1 + termSum + termLast;
+
+    levyValue = abs(levyValue);
+    fitnessResults[index] = 1.0f - (levyValue / (levyValue + 1.0f));
+}
